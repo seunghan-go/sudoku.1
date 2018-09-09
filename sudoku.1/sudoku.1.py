@@ -5,7 +5,8 @@ import copy
 def getInput():
     print("Type in given number from top left. type 0 if it is unknown")
     initValue = list()
-    for i in range(10):
+    i = 1
+    while i <10:
         val = input("Row %d :" %i)
         temp = val.split(" ")
         if len(temp) is 9:
@@ -13,20 +14,32 @@ def getInput():
         else:
             print("Number of nums should be 9")
             i = i - 1
-        print(initValue)
+        i += 1
+    print(initValue)
     return initValue
 
 def testInput():
+#    initValue = [ 
+#        [8, 0, 4, 6, 0, 3, 1, 0, 0 ],
+#        [0, 3, 5, 7, 0, 0, 0, 0, 0 ],
+#        [7, 0, 0, 0, 1, 0, 0, 0, 3 ],
+#        [6, 0, 1, 0, 4, 0, 7, 0, 5 ],
+#        [0, 4, 0, 0, 0, 0, 0, 6, 0 ],
+#        [5, 0, 2, 0, 8, 0, 9, 0, 1 ],
+#        [3, 0, 0, 0, 2, 0, 0, 0, 4 ],
+#        [0, 0, 0, 0, 0, 8, 6 ,5, 0 ],
+#        [0, 0, 8, 4, 0, 5, 3, 0, 9 ],
+#        ]
     initValue = [ 
-        [8, 0, 4, 6, 0, 3, 1, 0, 0 ],
-        [0, 3, 5, 7, 0, 0, 0, 0, 0 ],
-        [7, 0, 0, 0, 1, 0, 0, 0, 3 ],
-        [6, 0, 1, 0, 4, 0, 7, 0, 5 ],
-        [0, 4, 0, 0, 0, 0, 0, 6, 0 ],
-        [5, 0, 2, 0, 8, 0, 9, 0, 1 ],
-        [3, 0, 0, 0, 2, 0, 0, 0, 4 ],
-        [0, 0, 0, 0, 0, 8, 6 ,5, 0 ],
-        [0, 0, 8, 4, 0, 5, 3, 0, 9 ],
+        [8, 0, 0, 0, 7, 0, 6, 2, 0 ],
+        [0, 0, 0, 0, 9, 6, 0, 7, 8 ],
+        [0, 6, 0, 8, 0, 0, 3, 0, 5 ],
+        [0, 9, 0, 6, 0, 8, 0, 0, 0 ],
+        [3, 0, 0, 0, 0, 0, 0, 0, 6 ],
+        [0, 0, 0, 2, 0, 1, 0, 3, 0 ],
+        [9, 0, 7, 0, 0, 4, 0, 6, 0 ],
+        [2, 5, 0, 9, 8, 0, 0, 0, 0 ],
+        [0, 3, 4, 0, 6, 0, 0, 0, 2 ],
         ]
     print(initValue)
     return initValue
@@ -77,6 +90,11 @@ class sudoku:
                             self.resultSquare[idx].append(self.resultMap[x+i][y+j])
                 idx+=1
 
+    def influence(self):  # 이건 간단하게 추론인데.. 3x3 공간에서 하나 남아있는 블럭의 경우, 옆줄에 후보들이 다 있는 경우는 그 수가 된다.
+        # 가로방향으로 체크한번하고
+
+        # 세로방향으로 체크한번 하고
+        return True
 
     def updateCandidateMap(self):
         # 현재 셀의 위치 기준으로 x축 y축의 resultMap(확정된 값)을 candidate에서 제거.
@@ -110,7 +128,9 @@ class sudoku:
                     if len(self.candidateMap[i][j]) is 1:
                         self.resultMap[i][j] = self.candidateMap[i][j].pop()
 
+        self.influence()
 
+    
     def isFinished(self):
         for i in range(9):
             #if self.resultMap[i].index(0) >= 0:
@@ -146,8 +166,8 @@ def getResult(values):
 if __name__ == "__main__":
     print("sudoku__")
 
-    #getInput()
-    values = testInput()
+    values = getInput()
+    #values = testInput()
     getResult(values)
     #printResult()
 
