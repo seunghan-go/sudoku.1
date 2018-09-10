@@ -90,47 +90,51 @@ class sudoku:
                 idx+=1
 
  #   def __checkRowsWith2Lines(self, i, j):
+    def _next1(self, i):
+        return (int(i/3))*3+(i+1)%3
 
-    def _influence(self):  # 이건 간단하게 추론인데.. 3x3 공간에서 하나 남아있는 블럭의 경우, 옆줄에 후보들이 다 있는 경우는 그 수가 된다.
+    def _next2(self, i):
+        return (int(i/3))*3+(i+2)%3
+
+    def _influence(self):  # 이건 간단하게 추론인데.. 3x3 공간에서 가로든 세로든 하나 남아있는 블럭의 경우, 옆줄에 후보들이 다 있는 경우는 그 수가 된다.
         #3x3 안에 혼자있는걸 체크해야지.
-        #좌 좌 좌 , 중 중 중, 우 우 우 순으로 3칸씩 이동하면서 확인해보자
-        for i in range(0,9,3):
-            for j in range(0,9,3):
-                for y in range(3):
-                    for x in range(3):
-                        if self.resultMap[i+y][j+x] is 0:
-                            # 가로방향으로 체크한번하고
-                            if self.resultMap[i+y][j+((j+x+1)%3)] > 0 and self.resultMap[i+y][j+((j+x+2)%3)] >0 : ## 그 줄에 유일하게 비어있는가. 비었다면..
-                                # 3줄을 처리할 것임.
-                                for value in self.candidateMap[i+y][j+x]:
-                                    if value in self.resultRow[i + ((i+y+1)%3)] and value in self.resultRow[i + ((i+y+2)%3)]:
-                                        self.resultMap[i+y][j+x] = value
-                                        self.candidateMap[i+y][j+x] = []
-                                        self.updateResultData()
-                                        self.updateCandidateMap()
-                                        break
+        for i in range(9):
+            for j in range(9):
+                if self.resultMap[i][j] is 0:
+                    if self.resultMap[i][self._next1(j)] > 0 and self.resultMap[i][self._next2(j)] >0 : ## 그 줄에 유일하게 비어있는가. 비었다면..
+                        # 3줄을 처리할 것임.
+                        for value in self.candidateMap[i][j]:
+                            if value in self.resultRow[self._next1(i)] and value in self.resultRow[self._next2(i)]:
+                                self.resultMap[i][j] = value
+                                self.updateResultData()
+                                self.updateCandidateMap()
+                                break
             
-                            # 세로방향으로 체크한번 하고
-                            if self.resultMap[i+((i+y+1)%3)][j+x] > 0 and self.resultMap[i+((i+y+2)%3)][j+x] >0 : ## 그 줄에 유일하게 비어있는가. 비었다면..
-                                for value in self.candidateMap[i+y][j+x]:
-                                    if value in self.resultCol[j + ((j+x+1)%3)] and value in self.resultCol[j + ((j+x+2)%3)]:
-                                        self.resultMap[i+y][j+x] = value
-                                        self.candidateMap[i+y][j+x] = []
-                                        self.updateResultData()
-                                        self.updateCandidateMap()
-                                        break
+                    # 세로방향으로 체크한번 하고
+                    if self.resultMap[self._next1(i)][j] > 0 and self.resultMap[self._next2(i)][j] >0 : ## 그 줄에 유일하게 비어있는가. 비었다면..
+                        for value in self.candidateMap[i][j]:
+                            if value in self.resultCol[self._next1(j)] and value in self.resultCol[self._next2(j)]:
+                                self.resultMap[i][j] = value
+                                self.updateResultData()
+                                self.updateCandidateMap()
+                                break
             
         return True
 
     def _influence2(self): # 두번째인데, 영역 안에서 빈칸이 3개인데, 각 칸의 후보가 2, 2, 3 이면 3인놈에서 튀는놈이 값이다.
         # 34 34 347  > 4 4 7 > x x 7
         #가로부터 보자
+        for i in range(9):
+            pass
 
 
         return True
 
     def _influence3(self): # 세번째인데, 비슷한 소린데, 빈칸들의 candiate중 유일하게 한칸에만 있는 놈은 거기다. 
         return True
+
+    def _square(sef, i, j):
+        return int(i/3)*3+int(j/3)
 
     def updateCandidateMap(self):
         # 현재 셀의 위치 기준으로 x축 y축의 resultMap(확정된 값)을 candidate에서 제거.
@@ -141,26 +145,25 @@ class sudoku:
         for i in range(9):
             for j in range(9):
                 if self.resultMap[i][j] is 0:
+                    currentCandidate = self.candidateMap[i][j] 
                     for x in self.resultRow[i]:
-                        if x in self.candidateMap[i][j]:
-                            self.candidateMap[i][j].remove(x)
+                        if x in currentCandidate:
+                            currentCandidate.remove(x)
                             ret = True
                             break
-                    
+
                     for x in self.resultCol[j]:
-                        if x in self.candidateMap[i][j]:
-                            self.candidateMap[i][j].remove(x)
+                        if x in currentCandidate:
+                            currentCandidate.remove(x)
                             ret = True
                             break
-
-                    for x in self.resultSquare[int(i/3)*3+int(j/3)]:
-                        if x in self.candidateMap[i][j]:
-                            self.candidateMap[i][j].remove(x)
+                    for x in self.resultSquare[self._square(i,j)]:
+                        if x in currentCandidate:
+                            currentCandidate.remove(x)
                             ret = True
                             break
-
-                    if len(self.candidateMap[i][j]) is 1:
-                        self.resultMap[i][j] = self.candidateMap[i][j].pop()
+                    if len(currentCandidate) is 1:
+                        self.resultMap[i][j] = currentCandidate.pop()
                         self.updateResultData()
                         ret = True
 
@@ -180,9 +183,8 @@ class sudoku:
             # 우선 resultMap 을 기반으로 각 row별, column별, square별로 확정된 값을 만들고
             self.updateResultData()
             ## candidate에서 그것들을 제거.
-            needDoUpdateCandidateMap = self.updateCandidateMap()
-            while needDoUpdateCandidateMap is True:
-                needDoUpdateCandidateMap = self.updateCandidateMap()
+            while self.updateCandidateMap() is True:
+                pass
             ### 그러다 하나만 남으면 그걸 가지고 resultMap 업데이트.
             self._influence()
 
