@@ -41,8 +41,41 @@ def testInput():
         [2, 5, 0, 9, 8, 0, 0, 0, 0 ],
         [0, 3, 4, 0, 6, 0, 0, 0, 2 ],
         ]
+    initValue3 = [ 
+        [0, 0, 0, 9, 3, 0, 4, 8, 0 ],
+        [3, 0, 6, 8, 2, 0, 0, 0, 0 ],
+        [5, 9, 8, 0, 1, 0, 0, 0, 3 ],
+        [0, 2, 5, 0, 0, 3, 0, 0, 9 ],
+        [9, 0, 7, 5, 0, 1, 3, 0, 0 ],
+        [6, 3, 0, 0, 9, 0, 0, 5, 8 ],
+        [7, 6, 9, 0, 5, 0, 8, 3, 1 ],
+        [0, 0, 0, 3, 7, 9, 6, 0, 0 ],
+        [0, 0, 3, 1, 6, 8, 0, 0, 0],
+        ]
+    initValue4 = [ 
+        [0, 0, 0, 5, 6, 0, 0, 0, 3 ],
+        [0, 0, 3, 0, 0, 0, 8, 0, 1 ],
+        [7, 0, 0, 0, 3, 2, 0, 5, 0 ],
+        [4, 0, 9, 0, 0, 0, 0, 0, 0 ],
+        [0, 0, 0, 6, 0, 7, 0, 0, 0 ],
+        [0, 0, 0, 0, 0, 0, 3, 0, 9 ],
+        [0, 5, 0, 2, 1, 0, 0, 0, 6 ],
+        [2, 0, 8, 0, 0, 0, 9, 0, 0 ],
+        [3, 0, 0, 0, 8, 9, 0, 0, 0 ]
+        ]
+    initValue4 = [ 
+        [0, 0, 0, 0, 9, 5, 7, 0, 0 ],
+        [0, 0, 2, 0, 7, 0, 0, 0, 0 ],
+        [0, 0, 0, 0, 0, 0, 1, 2, 4 ],
+        [7, 0, 0, 0, 0, 0, 0, 8, 0 ],
+        [0, 0, 9, 8, 0, 4, 2, 0, 0 ],
+        [0, 3, 0, 0, 0, 0, 0, 0, 5 ],
+        [8, 5, 1, 0, 0, 0, 0, 0, 0 ],
+        [0, 0, 0, 0, 2, 0, 6, 0, 0 ],
+        [0, 0, 7, 1, 3, 0, 0, 0, 0 ]        
+        ]
     print(initValue2)
-    return initValue2
+    return initValue4
 
 class sudoku:
     candidateMap = list()
@@ -121,11 +154,41 @@ class sudoku:
             
         return True
 
-    def _influence2(self): # 두번째인데, 영역 안에서 빈칸이 3개인데, 각 칸의 후보가 2, 2, 3 이면 3인놈에서 튀는놈이 값이다.
-        # 34 34 347  > 4 4 7 > x x 7
+    def _influence2(self): # 한줄에, candidate 수를 다 체크해보면 그중 한개만 있는건 그거다.
         #가로부터 보자
         for i in range(9):
-            pass
+            for k in range(1,9):
+                temp = 0
+                idx = -1
+                if k not in self.resultRow[i]:
+                    for j in range(9):
+                        if k in self.candidateMap[i][j]:
+                            temp += 1
+                            idx = j
+                            if temp is 2:
+                                break;
+                    if temp is 1:
+                        self.resultMap[i][idx] = k
+                        self.updateResultData()
+                        self.updateCandidateMap()
+                        break
+        # 세로로 보자
+        for j in range(9):
+            for k in range(1,9):
+                temp = 0
+                idx = -1
+                if k not in self.resultCol[j]:
+                    for i in range(9):
+                        if k in self.candidateMap[i][j]:
+                            temp += 1
+                            idx = i
+                            if temp is 2:
+                                break;
+                    if temp is 1:
+                        self.resultMap[idx][j] = k
+                        self.updateResultData()
+                        self.updateCandidateMap()
+                        break
 
 
         return True
@@ -150,22 +213,20 @@ class sudoku:
                         if x in currentCandidate:
                             currentCandidate.remove(x)
                             ret = True
-                            break
-
                     for x in self.resultCol[j]:
                         if x in currentCandidate:
                             currentCandidate.remove(x)
                             ret = True
-                            break
                     for x in self.resultSquare[self._square(i,j)]:
                         if x in currentCandidate:
                             currentCandidate.remove(x)
                             ret = True
-                            break
                     if len(currentCandidate) is 1:
                         self.resultMap[i][j] = currentCandidate.pop()
                         self.updateResultData()
                         ret = True
+                else:
+                    self.candidateMap[i][j] = []
 
         return ret
 
@@ -187,6 +248,7 @@ class sudoku:
                 pass
             ### 그러다 하나만 남으면 그걸 가지고 resultMap 업데이트.
             self._influence()
+            self._influence2()
 
     def getResult(self):
         self.doGame()
